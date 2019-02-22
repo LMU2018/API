@@ -33,7 +33,7 @@ class TargetController extends Controller
         $this->kabupaten = $this->request->input('kabupaten');
         $this->provinsi = $this->request->input('provinsi');
         $this->id_target_mst_status = $this->request->input('id_target_mst_status');
-        $this->imit = $this->request->input('limit');
+        $this->limit = $this->request->input('limit');
         $this->offset = $this->request->input('offset');
         
 
@@ -41,7 +41,7 @@ class TargetController extends Controller
 
     public function index(){
 
-        $target = Target::select('*');
+        $target = DB::table('target');
         
 
         if($this->id_cms_users){
@@ -51,38 +51,38 @@ class TargetController extends Controller
 
         if($this->created_at){
 
-            $target->where('created_at',$created_at);
+            $target->where('created_at','like','%'.$this->created_at.'%');
         }
 
         if($this->id_mst_branch){
             
-            $target->where('id_mst_branch',$id_mst_branch);
+            $target->where('id_mst_branch',$this->id_mst_branch);
         
         }
 
         if($this->category){
 
-            $target->where('category',$category);
+            $target->where('category','like','%'.$this->category.'%');
         
         }
 
         if($this->no_contract){
 
-            $target->where('no_contract',$no_contract);
+            $target->where('no_contract','like','%'.$this->no_contract.'%');
 
         }
 
        
         if($this->first_name){
 
-            $target->where('first_name',$first_name);
+            $target->where('first_name','like','%'.$this->first_name.'%');
 
         }
 
         
         if($this->provider_1){
 
-        $target->where('provider_1',$provider_1);
+        $target->where('provider_1','like','%'.$this->provider_1.'%');
 
         }
 
@@ -91,30 +91,55 @@ class TargetController extends Controller
         
         if($this->provider_2){
 
-            $target->where('provider_2',$provider_2);
+            $target->where('provider_2','like','%'.$this->provider_2.'%');
 
         }
 
         
         if($this->kelurahan){
 
-            $target->where('kelurahan',$kelurahan);
+            $target->where('kelurahan','like','%'.$this->kelurahan.'%');
 
         }
 
         
         if($this->kecamatan){
 
-            $target->where('kecamatan',$kecamatan);
+            $target->where('kecamatan','like','%'.$this->kecamatan.'%');
 
         }
 
         
         if($this->kabupaten){
 
-            $target->where('kabupaten',$kabupaten);
+            $target->where('kabupaten','like','%'.$this->kabupaten.'%');
 
         }
+
+        if($this->provinsi){
+
+            $target->where('provinsi','like','%'.$this->provinsi.'%');
+
+        }
+
+        if($this->id_target_mst_status){
+
+            $target->where('id_target_mst_status',$this->id_target_mst_status);
+
+        }
+
+        if($this->offset){
+
+            $target->offset($this->offset);
+
+        }
+
+        if($this->limit){
+
+            $target->limit($this->limit);
+
+        }
+        
 
         $result = $target->get();
         $api_message = 'success';
