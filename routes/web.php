@@ -30,5 +30,6 @@ $router->group(
         });
        
         $router->get('target', 'TargetAssigment@coba');
+        $router->get('target/index', 'TargetController@index');
     }
 );
