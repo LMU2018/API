@@ -16,10 +16,10 @@ class TargetController extends Controller
     $kelurahan ,$kecamatan ,$kabupaten ,$provinsi ,$id_target_mst_status ,
     $limit ,$offset;
 
-    public function __construct(Request $this->request)
+    public function __construct(Request $request)
     {
         //
-        $this->request = $this->request;
+        $this->request = $request;
         $this->id_cms_users = $this->request->input('id_cms_users');
         $this->created_at = $this->request->input('created_at');
         $this->id_mst_branch = $this->request->input('id_mst_branch');
