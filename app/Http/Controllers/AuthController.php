@@ -51,28 +51,81 @@ class AuthController extends BaseController
     public function authenticate(User $user) {
         $this->validate($this->request, [
             'npm'     => 'required',
-            'password'  => 'required'
+            'password'  => 'required',
+            'device_id'
         ]);
+
+
         // Find the user by email
-        $user = User::where('npm', $this->request->input('npm'))->first();
+        $user = User::select('cms_users.*','mst_branch.id  as id_mst_branch','mst_branch.branch_name')->where('npm', $this->request->input('npm'))->join('mst_outlet','mst_outlet.id','cms_users.id_mst_outlet')
+        ->join('mst_branch','mst_branch.id','mst_outlet.id_mst_branch')->first();
         if (!$user) {
             // You wil probably have some sort of helpers or whatever
             // to make sure that you have the same response format for
             // differents kind of responses. But let's return the 
             // below respose for now.
-            return response()->json([
-                'error' => 'Npm does not exist.'
-            ], 400);
+            // return response()->json([
+            //     'error' => 'Npm does not exist.'
+            // ], 400);
+            $api_message = "NPM Tidak ditemukan";
+                
+            $data = ['api_status' => 0,
+            'api_message' => $api_message];
+                    
+            return response()->json($data,400);
+
         }
         // Verify the password and generate the token
         if (Hash::check($this->request->input('password'), $user->password)) {
-            return response()->json([
-                'token' => $this->jwt($user)
-            ], 200);
+
+            $device_id = $this->request->input('device_id');
+
+            if (isset($device_id)){
+
+                User::where('npm',$this->request->input('npm'))
+                ->update(['device_id' => 
+                $device_id]);
+
+                // $api_message = "Berhasil Login";
+                
+                // $data = ['api_status' => 1,
+                // 'api_message' => $api_message,
+                // 'token' => $this->jwt($user)];
+
+                // $data = array_merge($data,$user->toArray());
+
+                // return response()->json($data,200);
+
+               
+
+            }
+
+                $api_message = "Berhasil Login";
+                
+                $data = ['api_status' => 1,
+                'api_message' => $api_message,
+                'token' => $this->jwt($user)];
+                
+                $data = array_merge($data,$user->toArray());
+
+                return response()->json($data,200);
+                
+                // return response()->json([
+                //     'token' => $this->jwt($user)
+                // ], 200);
+
+            
         }
         // Bad Request response
-        return response()->json([
-            'error' => 'password is wrong.'
-        ], 400);
+        // return response()->json([
+        //     'error' => 'password is wrong.'
+        // ], 400);
+
+        $api_message = "Password Salah";
+                
+        $data = ['api_status' => 0,
+        'api_message' => $api_message];
+                
+        return response()->json($data,400);
     }
 }
