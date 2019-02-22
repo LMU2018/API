@@ -20,7 +20,8 @@ class TargetController extends Controller
 
         $this->validate($this->request,[
             'id_cms_users',
-            
+            'created_at',
+
         ]);
 
 
