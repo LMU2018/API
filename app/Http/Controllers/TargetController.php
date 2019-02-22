@@ -11,96 +11,104 @@ class TargetController extends Controller
 {
     //
 
-    public function __construct()
+    private $id_cms_users ,$created_at ,$id_mst_branch ,
+    $category ,$no_contract,$first_name ,$provider_1 ,$provider_2 ,
+    $kelurahan ,$kecamatan ,$kabupaten ,$provinsi ,$id_target_mst_status ,
+    $limit ,$offset;
+
+    public function __construct(Request $this->request)
     {
         //
+        $this->request = $this->request;
+        $this->id_cms_users = $this->request->input('id_cms_users');
+        $this->created_at = $this->request->input('created_at');
+        $this->id_mst_branch = $this->request->input('id_mst_branch');
+        $this->category = $this->request->input('category');
+        $this->no_contract = $this->request->input('no_contract');
+        $this->first_name = $this->request->input('first_name');
+        $this->provider_1 = $this->request->input('provider_1');
+        $this->provider_2 = $this->request->input('provider_2');
+        $this->kelurahan = $this->request->input('kelurahan');
+        $this->kecamatan = $this->request->input('kecamatan');
+        $this->kabupaten = $this->request->input('kabupaten');
+        $this->provinsi = $this->request->input('provinsi');
+        $this->id_target_mst_status = $this->request->input('id_target_mst_status');
+        $this->imit = $this->request->input('limit');
+        $this->offset = $this->request->input('offset');
+        
+
     }
 
-    public function index(Request $request){
-
-        $id_cms_users = $request->input('id_cms_users');
-        $created_at = $request->input('created_at');
-        $id_mst_branch = $request->input('id_mst_branch');
-        $category = $request->input('category');
-        $no_contract = $request->input('no_contract');
-        $first_name = $request->input('first_name');
-        $provider_1 = $request->input('provider_1');
-        $provider_2 = $request->input('provider_2');
-        $kelurahan = $request->input('kelurahan');
-        $kecamatan = $request->input('kecamatan');
-        $kabupaten = $request->input('kabupaten');
-        $provinsi = $request->input('provinsi');
-        $id_target_mst_status = $request->input('id_target_mst_status');
-        $limit = $request->input('limit');
-        $offset = $request->input('offset');
+    public function index(){
 
         $target = Target::select('*');
+        
 
-        if(isset($id_cms_users)){
+        if($this->id_cms_users){
 
-            $target->where('id_cms_users',$id_cms_users);
+            $target->where('id_cms_users',$this->id_cms_users);
         }
 
-        if(isset($created_at)){
+        if($this->created_at){
 
             $target->where('created_at',$created_at);
         }
 
-        if(isset($id_mst_branch)){
+        if($this->id_mst_branch){
             
             $target->where('id_mst_branch',$id_mst_branch);
         
         }
 
-        if(isset($category)){
+        if($this->category){
 
             $target->where('category',$category);
         
         }
 
-        if(isset($no_contract)){
+        if($this->no_contract){
 
             $target->where('no_contract',$no_contract);
 
         }
 
        
-        if(isset($first_name)){
+        if($this->first_name){
 
             $target->where('first_name',$first_name);
 
         }
 
         
-        if(isset($provider_1)){
+        if($this->provider_1){
 
         $target->where('provider_1',$provider_1);
 
         }
 
         
-        if(isset($provider_2)){
+        if($this->provider_2){
 
             $target->where('provider_2',$provider_2);
 
         }
 
         
-        if(isset($kelurahan)){
+        if($this->kelurahan){
 
             $target->where('kelurahan',$kelurahan);
 
         }
 
         
-        if(isset($kecamatan)){
+        if($this->kecamatan){
 
             $target->where('kecamatan',$kecamatan);
 
         }
 
         
-        if(isset($kabupaten)){
+        if($this->kabupaten){
 
             $target->where('kabupaten',$kabupaten);
 
