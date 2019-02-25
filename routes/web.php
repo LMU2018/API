@@ -1,5 +1,7 @@
 <?php
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -28,8 +30,11 @@ $router->group(
             $users = \App\User::all();
             return response()->json($users);
         });
-       
-        $router->get('target', 'TargetAssigment@coba');
         $router->get('target/index', 'TargetController@index');
+        $router->put('target/update', 'TargetController@update');
+        $router->put('target/assignment', 'TargetController@assignment');
+
+       
+        
     }
 );
