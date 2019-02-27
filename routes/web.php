@@ -31,8 +31,13 @@ $router->group(
             return response()->json($users);
         });
         $router->get('target/index', 'TargetController@index');
+        $router->get('target/assignment', 'TargetController@dataAssignment');
         $router->put('target/update', 'TargetController@update');
         $router->put('target/assignment', 'TargetController@assignment');
+         $router->get('target/listing', 'TargetController@listing');
+
+
+        $router->get('users/index', 'UsersController@index');
 
        
         
