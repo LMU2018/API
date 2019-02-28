@@ -5,8 +5,10 @@ use App\Target;
 use App\TargetLog;
 use App\TargetVisum;
 use App\TargetNote;
+use App\TargetPhoto;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 use Laravel\Lumen\Routing\Controller as BaseController;
 
@@ -17,12 +19,14 @@ class TargetController extends Controller
     private $id_cms_users ,$created_at ,$id_mst_branch ,
     $category ,$no_contract,$first_name ,$provider_1 ,$provider_2 ,
     $kelurahan ,$kecamatan ,$kabupaten ,$provinsi ,$id_target_mst_status ,
-    $limit ,$offset;
+    $limit ,$offset,$id_target,$note,$created_at_now,$description,$revisit,
+    $id_mst_visum_status;
 
     public function __construct(Request $request)
     {
         //
         $this->request = $request;
+        $this->created_at_now = date("Y-m-d H:i:s");
         $this->id = $this->request->input('id');
         $this->created_at = $this->request->input('created_at');
          $this->updated_at = $this->request->input('updated_at');
@@ -53,6 +57,11 @@ class TargetController extends Controller
 
         $this->id_mst_log_desc = $this->request->input('id_mst_log_desc');
         $this->null_desc = $this->request->input('null_desc');
+        $this->id_target = $this->request->input('id_target');
+        $this->note = $this->request->input('note');
+        $this->description = $this->request->input('description');
+        $this->revisit = $this->request->input('revisit');
+        $this->id_mst_visum_status = $this->request->input('id_mst_visum_status');
         
 
     }
@@ -795,6 +804,159 @@ class TargetController extends Controller
             return response()->json($data);
         }
     }
+
+    public function targetNoteCreate(){
+        
+        if(!$this->id_target){
+
+            $data['api_message'] = "id_target required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+        
+        if(!$this->id_cms_users){
+
+            $data['api_message'] = "id_cms_users required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+
+        if(!$this->note){
+
+            $data['api_message'] = "note required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+
+        if($this->id_target && $this->id_cms_users && $this->note){
+
+            $targetNote = TargetNote::insert(
+                ['created_at' => $this->created_at_now,
+                'id_target' => $this->id_target,
+                'note' => $this->note,
+                'id_cms_users' => $this->id_cms_users]
+            );
+
+            if($targetNote){
+
+                $data['api_message'] = "success";
+                $data['api_status'] = 1;    
+                return response()->json($data);
+
+            }else{
+
+                $data['api_message'] = "gagal menyimpan";
+                $data['api_status'] = 0;    
+                return response()->json($data);
+
+            }
+        }
+    }
+
+    public function targetVisumCreate(){
+
+        if(!$this->id_target){
+
+            $data['api_message'] = "id_target required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+
+        if(!$this->id_cms_users){
+
+            $data['api_message'] = "id_cms_users required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+
+        if(!$this->revisit){
+
+            $data['api_message'] = "revisit required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+
+        if(!$this->id_mst_visum_status){
+
+            $data['api_message'] = "id_mst_visum_status required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+
+        if(!$this->request->hasFile('photo')){
+
+            $data['api_message'] = "foto required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+
+        if($this->id_target && $this->id_cms_users && $this->revisit && $this->id_mst_visum_status
+            && $this->request->hasFile('photo')){
+
+                $picName = $this->request->file('photo')->getClientOriginalName();
+                $picName = uniqid().$picName;
+                $destinationPath = storage_path('\uploads\user_files\target\visum\\'.$this->id_target);
+                $check = $this->request->file('photo')->move($destinationPath, $picName);
+
+                if($check){
+
+                    $locationFile = $destinationPath.'\\'.$picName;
+
+                    $targetVisum = TargetVisum::insertGetId(
+                        ['created_at' => $this->created_at_now,
+                        'id_target' => $this->id_target,
+                        'id_mst_visum_status' => $this->id_mst_visum_status,
+                        'revisit' => $this->revisit,
+                        'id_cms_users' => $this->id_cms_users]
+                    );
+
+                    if($targetVisum){
+
+                        $targetUpload = TargetPhoto::insert(
+                            ['created_at' => $this->created_at_now,
+                            'id_target' => $this->id_target,
+                            'id_target_visum' => $targetVisum,
+                            'photo' => $locationFile,
+                            'description' => $this->description,
+                            'id_cms_users' => $this->id_cms_users]
+                        );
+
+                        if($targetUpload){
+
+                            $data['api_message'] = "Berhasil menyimpan visum";
+                            $data['api_status'] = 1;    
+                            return response()->json($data);
+
+                        }else{
+
+                            $data['api_message'] = "Gagal menyimpan visum";
+                            $data['api_status'] = 0;    
+                            return response()->json($data);
+
+                        }
+        
+                    }else{
+        
+                        $data['api_message'] = "Gagal menyimpan visum";
+                        $data['api_status'] = 0;    
+                        return response()->json($data);
+        
+                    }
+
+                }else{
+                    
+                    $data['api_message'] = "Gambar gagal di upload";
+                    $data['api_status'] = 0;    
+                    return response()->json($data);
+
+                }
+
+        }
+
+        
+
+    }
+
 
 
 }
