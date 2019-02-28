@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 use App\Target;
+use App\TargetLog;
+use App\TargetVisum;
+use App\TargetNote;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
@@ -58,9 +61,9 @@ class TargetController extends Controller
 
         $target = DB::table('target');
 
-        if(!$this->id_cms_users){
+        if($this->id_cms_users){
 
-            $target->where('id_cms_users',$this->id_cms_users);
+            $target->where('target.id_cms_users',$this->id_cms_users);
         
         }
 
@@ -161,6 +164,7 @@ class TargetController extends Controller
             (select created_at from target_log where target_log.id_target=target.id order by created_at desc limit 1) as created_at_target_log , 
             target.created_at '));
             $target->join('cms_users','target.id_cms_users','cms_users.id');
+    
 
             if($this->id_target_mst_status != 4){
             $target->where('id_target_mst_status',$this->id_target_mst_status);
@@ -181,6 +185,7 @@ class TargetController extends Controller
                 $target->whereRaw("(SELECT target_visum.id from target_visum where target_visum.id_target = target.id limit 1) is not null");
                 $target->orderBy('created_at_target_visum','DESC');
             }
+
 
         }else{
 
@@ -347,6 +352,246 @@ class TargetController extends Controller
             $res['success'] = false;
             $res['message'] = $ex->getMessage();
             return response($res, 500);
+        }
+    }
+
+    public function targetDetailTotal(){
+
+        if(!$this->id){
+
+            $data['api_message'] = "id required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+
+        if(!$this->id_cms_users){
+
+            $data['api_message'] = "id_cms_users required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+
+        }
+
+        if($this->id && $this->id_cms_users){
+            
+            $target = Target::select(DB::raw("(select count(target_log.id) from target_log where target_log.id_target = target.id) as logTotal , 
+            (select count(target_note.id) from target_note where target_note.id_target = target.id) as noteTotal ,
+            (select count(target_visum.id) from target_visum where target_visum.id_target = target.id) as visumTotal "));
+
+            $target->where('target.id_cms_users',$this->id_cms_users);
+            $target->where('target.id',$this->id);
+
+            $result = $target->get();
+
+            $data['api_message'] = "success";
+            $data['api_status'] = 1;
+
+            // $data = ['api_message' => 'success',
+            //         $result];
+
+            $data =  array_merge($data,$result[0]->toArray());
+
+            return response()->json($data);
+        }
+
+
+    }
+
+    public function targetDetail(){
+        
+        if(!$this->id){
+
+            $data['api_message'] = "id required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }else{
+
+            $target = Target::select(DB::raw('target.id , 
+        mst_data_source.datasource , 
+        target.id_target_mst_status , 
+        target_mst_status.status , 
+        target.business_code , 
+        target.category ,
+        target.priority , 
+        target.no_contract , 
+        target.nopol , 
+        target.first_name , 
+        target.last_name , 
+        target.hp_1 , 
+        target.hp_2 , 
+        target.provider_1 , 
+        target.provider_2 , 
+        target.job , 
+        target.address , 
+        target.kelurahan , 
+        target.kecamatan , 
+        target.kabupaten , 
+        target.provinsi , 
+        cms_users.name as cms_users_name , 
+        target_log.id_mst_log_desc as id_mst_log_desc, 
+        mst_log_desc.description , 
+        target_visum.id_mst_visum_status as id_target_visum  , 
+        mst_visum_status.status as visum_status , 
+        mst_log_desc.id_mst_log_status as id_mst_log_status'));
+
+        $target->leftjoin('cms_users','target.id_cms_users','cms_users.id');
+        $target->leftjoin('target_log','target.id','target_log.id_target');
+        $target->leftjoin('mst_log_desc','target_log.id_mst_log_desc','mst_log_desc.id');
+        $target->leftjoin('target_visum','target.id','target_visum.id_target');
+        $target->leftjoin('mst_visum_status','target_visum.id_mst_visum_status','mst_visum_status.id');
+        $target->leftjoin('mst_data_source','target.id_mst_data_source','mst_data_source.id');
+        $target->leftjoin('target_mst_status','target.id_target_mst_status','target_mst_status.id');
+        $target->where('target.id',$this->id);
+        $target->orderBy('target_log.created_at','desc');
+        $target->limit(1);
+        
+
+        $result = $target->get();
+
+        $data['api_message'] = "success";
+        $data['api_status'] = 1;
+
+        // $data = ['api_message' => 'success',
+        //         $result];
+
+        $data =  array_merge($data,$result[0]->toArray());
+
+        return response()->json($data);
+
+        }
+
+
+    }
+
+    public function targetLog(){
+
+        if(!$this->id){
+
+            $data['api_message'] = "id required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+
+        if(!$this->id_cms_users){
+
+            $data['api_message'] = "id_cms_users required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+
+        }
+
+        if($this->id && $this->id_cms_users){
+
+            $targetLog = TargetLog::where('id',$this->id)->where('id_cms_users',$this->id_cms_users)->get();
+
+            $data['api_message'] = "success";
+            $data['api_status'] = 1;
+            $data['data'] = $targetLog;   
+            return response()->json($data);
+        }
+    }
+
+    public function targetVisum(){
+
+        if(!$this->id){
+
+            $data['api_message'] = "id required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+
+        if(!$this->id_cms_users){
+
+            $data['api_message'] = "id_cms_users required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+
+        }
+
+        if($this->id && $this->id_cms_users){
+
+            $targetVisum = TargetVisum::where('id',$this->id)->where('id_cms_users',$this->id_cms_users)->get();
+
+            $data['api_message'] = "success";
+            $data['api_status'] = 1;
+            $data['data'] = $targetVisum;   
+            return response()->json($data);
+        }
+
+    }
+
+    public function targetNote(){
+
+        if(!$this->id){
+
+            $data['api_message'] = "id required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }else{
+
+            $targetNote = TargetNote::where('id',$this->id)->get();
+
+            $data['api_message'] = "success";
+            $data['api_status'] = 1;
+            $data['data'] = $targetNote;   
+            return response()->json($data);
+        }
+
+    }
+
+    public function targetSearch(){
+
+        if(!$this->id_cms_users){
+
+            $data['api_message'] = "id_cms_users required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+        
+        if(!$this->first_name){
+
+            $data['api_message'] = "first_name required";
+            $data['api_status'] = 0;    
+            return response()->json($data);
+        }
+
+        if($this->id_cms_users && $this->first_name){
+
+            $targetSearch = DB::table('target');
+             $targetSearch->select(DB::raw('target.id_cms_users,target.id , 
+                target.id_target_mst_status , 
+                (select status from target_mst_status where target_mst_status.id = target.id_target_mst_status) as target_mst_status_status , 
+                target.category ,
+                target.first_name ,
+                target.last_name, 
+                cms_users.npm as cms_users_npm , 
+                cms_users.name as cms_users_name , 
+                target.updated_by ,
+                (select recall from target_log where target_log.id_target=target.id order by id desc limit 1) as recall , 
+                (select id_mst_log_desc from target_log where target_log.id_target=target.id order by id desc limit 1) as id_mst_log_desc , 
+                (select id_mst_log_status from mst_log_desc where id=id_mst_log_desc)as id_mst_log_status , 
+                (select description from mst_log_desc where mst_log_desc.id=id_mst_log_desc) as description ,
+                (select status from mst_log_status where mst_log_status.id=id_mst_log_status) as status , 
+                (select id_mst_visum_status from target_visum where target_visum.id_target = target.id order by id desc limit 1) id_mst_visum_status , 
+                (select revisit from target_visum where target_visum.id_target = target.id order by id desc limit 1	) as revisit , 
+                (select status from mst_visum_status where mst_visum_status.id = id_mst_visum_status) as visit_status , 
+                (select created_at from target_visum where target_visum.id_target = target.id order by id desc limit 1) as created_at_target_visum , 
+                (select created_at from target_log where target_log.id_target=target.id order by created_at desc limit 1) as created_at_target_log , 
+                target.created_at'));
+            $targetSearch->join('cms_users','target.id_cms_users','cms_users.id');
+            $targetSearch->where('target.id_cms_users',$this->id_cms_users);
+            $targetSearch->where('target.first_name','like','%'.$this->first_name.'%');
+            $targetSearch->orWhere('target.last_name','like','%'.$this->first_name.'%');
+            $targetSearch->where('target.id_cms_users',$this->id_cms_users);
+            
+            $result = $targetSearch->get();
+
+                
+            $data['api_message'] = "success";
+            $data['api_status'] = 1;
+            $data['data'] = $result;
+
+            return response()->json($data);
         }
     }
 

@@ -30,11 +30,15 @@ $router->group(
             $users = \App\User::all();
             return response()->json($users);
         });
+        $router->get('target/targetsearch', 'TargetController@targetSearch');
+        $router->get('target/targetnote', 'TargetController@targetNote');
+        $router->get('target/targetvisum', 'TargetController@targetVisum');
+        $router->get('target/targetlog', 'TargetController@targetLog');
         $router->get('target/index', 'TargetController@index');
+        $router->get('target/targetDetailTotal', 'TargetController@targetDetailTotal');
+        $router->get('target/targetDetail', 'TargetController@targetDetail');
         $router->put('target/update', 'TargetController@update');
         $router->put('target/assignment', 'TargetController@assignment');
-
-       
         
     }
 );
