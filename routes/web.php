@@ -35,10 +35,22 @@ $router->group(
         $router->get('target/targetvisum', 'TargetController@targetVisum');
         $router->get('target/targetlog', 'TargetController@targetLog');
         $router->get('target/index', 'TargetController@index');
+<<<<<<< HEAD
         $router->get('target/targetDetailTotal', 'TargetController@targetDetailTotal');
         $router->get('target/targetDetail', 'TargetController@targetDetail');
         $router->put('target/update', 'TargetController@update');
         $router->put('target/assignment', 'TargetController@assignment');
+=======
+        $router->get('target/assignment', 'TargetController@dataAssignment');
+        $router->put('target/update', 'TargetController@update');
+        $router->put('target/assignment', 'TargetController@assignment');
+         $router->get('target/listing', 'TargetController@listing');
+
+
+        $router->get('users/index', 'UsersController@index');
+
+       
+>>>>>>> 8ba2821a1d10126f0260e0876ce0432d5752ba25
         
     }
 );

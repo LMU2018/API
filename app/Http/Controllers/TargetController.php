@@ -50,6 +50,9 @@ class TargetController extends Controller
         $this->updated_by = $this->request->input('updated_by');
         $this->limit = $this->request->input('limit');
         $this->offset = $this->request->input('offset');
+
+        $this->id_mst_log_desc = $this->request->input('id_mst_log_desc');
+        $this->null_desc = $this->request->input('null_desc');
         
 
     }
@@ -216,6 +219,204 @@ class TargetController extends Controller
 
     }
 
+    public function dataAssignment(){
+
+
+        // $target = DB::table('target');
+        $target = Target::select('target.id',
+        'target.id_mst_branch',
+        'target.category',
+        'target.first_name',
+        'target.no_contract',
+        'target.provider_1',
+        'target.provider_2',
+        'target.kabupaten',
+        'target.kecamatan',
+        'target.kelurahan',
+        'target.id_cms_users',
+        'cms_users.name as cms_users_name',
+        'target_log.id_mst_log_desc',
+        'mst_log_desc.description');
+
+        if($this->id){
+            $target->where('target.id','=',$this->id);
+        }
+
+        if($this->id_cms_users){
+            $target->where('target.id_cms_users',$this->id_cms_users);
+        }
+        if($this->id_mst_branch){
+            $target->where('id_mst_branch',$this->id_mst_branch);
+        }
+        if($this->category){
+            $target->where('category','like','%'.$this->category.'%');
+        }
+        if($this->no_contract){
+            $target->where('no_contract','like','%'.$this->no_contract.'%');
+        }     
+        if($this->provider_1){
+        $target->where('provider_1','like','%'.$this->provider_1.'%');
+        }    
+        if($this->provider_2){
+            $target->where('provider_2','like','%'.$this->provider_2.'%');
+        }
+        if($this->kelurahan){
+            $target->where('kelurahan','like','%'.$this->kelurahan.'%');
+        }
+        if($this->kecamatan){
+            $target->where('kecamatan','like','%'.$this->kecamatan.'%');
+        }
+        if($this->kabupaten){
+            $target->where('kabupaten','like','%'.$this->kabupaten.'%');
+        }
+        if($this->provinsi){
+            $target->where('provinsi','like','%'.$this->provinsi.'%');
+        }
+        if($this->provinsi){
+            $target->where('provinsi','like','%'.$this->provinsi.'%');
+        }
+        if($this->offset){
+            $target->offset($this->offset);
+        }
+        if($this->limit){
+            $target->limit($this->limit);
+        }
+
+         if($this->id_mst_log_desc){
+            $target->where('target_log.id_mst_log_desc',$this->id_mst_log_desc);
+        }
+        if($this->null_desc == 1){
+            $target->whereNull('target_log.id');
+        }
+        
+
+        $result = $target
+        ->join('cms_users','target.id_cms_users','cms_users.id')
+        ->leftJoin('target_log','target.id','target_log.id_target')
+        ->leftJoin('mst_log_desc','target_log.id_mst_log_desc','mst_log_desc.id')
+        // ->groupBy('target.id')
+        ->get();
+        $api_message = 'success';
+
+        $data = ['api_status' => 1,
+        'api_message'=> $api_message,
+        'data' => $result];
+
+        return response()->json($data);
+
+
+    }
+
+    public function listing(){
+
+
+        // $target = DB::table('target');
+        $target = Target::select('target.created_at',
+        'target.updated_at',
+        'target.id_mst_data_source',
+        'target.id',
+        'target.id_mst_branch',
+        'mst_branch.branch_name',
+        'target.business_code',
+        'target.priority',
+        'target.nopol',
+        'target.last_name',
+        'target.address',
+        'target.provinsi',
+        'target.updated_by',
+        'target.id_target_mst_status',
+        'target.category',
+        'target.first_name',
+        'target.no_contract',
+        'target.provider_1',
+        'target.provider_2',
+        'target.kabupaten',
+        'target.kecamatan',
+        'target.kelurahan',
+        'target.id_cms_users',
+        'cms_users.name as cms_users_name',
+        'target_log.id_mst_log_desc',
+        'target_log.duration',
+        'target_log.recall',
+        'target_mst_status.status',
+        'target_note.note',
+        'target_visum.revisit',
+        // 'mst_visum_status.status',
+        'mst_log_desc.description');
+
+        if($this->id){
+            $target->where('target.id','=',$this->id);
+        }
+
+        if($this->id_cms_users){
+            $target->where('target.id_cms_users',$this->id_cms_users);
+        }
+        if($this->id_mst_branch){
+            $target->where('id_mst_branch',$this->id_mst_branch);
+        }
+        if($this->category){
+            $target->where('category','like','%'.$this->category.'%');
+        }
+        if($this->no_contract){
+            $target->where('no_contract','like','%'.$this->no_contract.'%');
+        }     
+        if($this->provider_1){
+        $target->where('provider_1','like','%'.$this->provider_1.'%');
+        }    
+        if($this->provider_2){
+            $target->where('provider_2','like','%'.$this->provider_2.'%');
+        }
+        if($this->kelurahan){
+            $target->where('kelurahan','like','%'.$this->kelurahan.'%');
+        }
+        if($this->kecamatan){
+            $target->where('kecamatan','like','%'.$this->kecamatan.'%');
+        }
+        if($this->kabupaten){
+            $target->where('kabupaten','like','%'.$this->kabupaten.'%');
+        }
+        if($this->provinsi){
+            $target->where('provinsi','like','%'.$this->provinsi.'%');
+        }
+        if($this->provinsi){
+            $target->where('provinsi','like','%'.$this->provinsi.'%');
+        }
+        if($this->offset){
+            $target->offset($this->offset);
+        }
+        if($this->limit){
+            $target->limit($this->limit);
+        }
+
+         if($this->id_mst_log_desc){
+            $target->where('target_log.id_mst_log_desc',$this->id_mst_log_desc);
+        }
+        if($this->null_desc == 1){
+            $target->whereNull('target_log.id');
+        }
+        
+
+        $result = $target
+        ->join('cms_users','target.id_cms_users','cms_users.id')
+        ->leftJoin('target_log','target.id','target_log.id_target')
+        ->leftJoin('mst_log_desc','target_log.id_mst_log_desc','mst_log_desc.id')
+        ->leftJoin('mst_branch','target.id_mst_branch','mst_branch.id')
+        ->leftJoin('target_mst_status','target.id_target_mst_status','target_mst_status.id')
+        ->leftJoin('target_note','target.id','target_note.id_target')
+        ->leftJoin('target_visum','target.id','target_visum.id_target')
+        // ->Join('mst_visum_status','target_visum.id_mst_visum_status','mst_visum_status.')
+        ->get();
+        $api_message = 'success';
+
+        $data = ['api_status' => 1,
+        'api_message'=> $api_message,
+        'data' => $result];
+
+        return response()->json($data);
+
+
+    }
+
     //Update Target Global column ga wajib diisi
     public function update(){
         try {
@@ -287,8 +488,8 @@ class TargetController extends Controller
                 if($this->id_cms_users){
                     $target->id_cms_users = $this->id_cms_users;
                 }
-                if($this->updated_by){
-                     $target->updated_by = $this->updated_by;
+                if($this->updated_by){ 
+                    $target->updated_by = $this->updated_by;
                 }
 
                 $target->save();
